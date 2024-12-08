@@ -1,0 +1,112 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath, amssymb, graphicx, hyperref}
+\usepackage{booktabs}
+
+\title{Modeling Sales Diffusion: Bass and Logistic Growth Models}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Sales diffusion models describe how new products are adopted over time. Two widely used approaches are:
+\begin{itemize}
+    \item The \textbf{Bass Model}, which captures diffusion via innovation and imitation effects.
+    \item The \textbf{Logistic Growth Model}, which assumes an S-shaped growth curve driven by intrinsic market dynamics.
+\end{itemize}
+This document outlines the implementation, fitting, and evaluation of these models, emphasizing simplicity and robustness.
+
+\section{The Bass Model}
+The Bass Model explains cumulative adoption using two parameters: the \textit{innovation rate} (\(p\)) and the \textit{imitation rate} (\(q\)):
+\[
+S(t) = \left( p + q \frac{C(t)}{M} \right) \left( M - C(t) \right),
+\]
+where:
+\begin{itemize}
+    \item \(S(t)\): Sales at time \(t\),
+    \item \(C(t)\): Cumulative sales up to time \(t\),
+    \item \(M\): Market potential,
+    \item \(p\): Probability of initial adoption,
+    \item \(q\): Influence from prior adopters.
+\end{itemize}
+The model's S-shaped curve arises from the interaction between \(p\) and \(q\).
+
+\subsection{Parameter Estimation}
+The Bass Model parameters (\(p\), \(q\), and \(M\)) are estimated using Maximum Likelihood Estimation (MLE). Given observed sales data, the negative log-likelihood is:
+\[
+\text{NLL} = -\sum_{t=1}^T \log \mathcal{N}(S(t); \hat{S}(t), \sigma^2),
+\]
+where \(\hat{S}(t)\) are the model's predicted sales.
+
+\section{The Logistic Growth Model}
+The Logistic Growth Model describes adoption as a logistic function:
+\[
+S(t) = \frac{M}{1 + \exp(-r (t - t_{\text{inf}}))},
+\]
+where:
+\begin{itemize}
+    \item \(S(t)\): Sales at time \(t\),
+    \item \(M\): Market potential (saturation level),
+    \item \(r\): Growth rate,
+    \item \(t_{\text{inf}}\): Time of inflection (maximum growth).
+\end{itemize}
+The model assumes symmetric growth around \(t_{\text{inf}}\).
+
+\subsection{Parameter Estimation}
+Similar to the Bass Model, parameters (\(M\), \(r\), \(t_{\text{inf}}\)) are estimated via MLE:
+\[
+\text{NLL} = -\sum_{t=1}^T \log \mathcal{N}(S(t); \hat{S}(t), \sigma^2).
+\]
+
+\section{Comparison of Models}
+\subsection{Simulation}
+Both models can simulate sales under varying parameter assumptions. For example:
+\begin{itemize}
+    \item \textbf{Bass Model}: Simulates the effect of high imitation (\(q\)) or high innovation (\(p\)).
+    \item \textbf{Logistic Model}: Simulates different growth rates (\(r\)) or saturation levels (\(M\)).
+\end{itemize}
+
+\subsection{Fit Evaluation}
+The fit of each model is assessed using:
+\begin{itemize}
+    \item \textbf{Root Mean Squared Error (RMSE)}:
+    \[
+    \text{RMSE} = \sqrt{\frac{1}{T} \sum_{t=1}^T (S_{\text{actual}}(t) - S_{\text{predicted}}(t))^2},
+    \]
+    \item \textbf{Mean Absolute Error (MAE)}:
+    \[
+    \text{MAE} = \frac{1}{T} \sum_{t=1}^T \left| S_{\text{actual}}(t) - S_{\text{predicted}}(t) \right|.
+    \]
+\end{itemize}
+
+\section{Implementation}
+\subsection{Bass Model}
+The Bass Model was implemented as an R6 class with methods for simulation and parameter estimation. Simulation computes sales recursively:
+\[
+S(t) = \left( p + q \frac{C(t)}{M} \right) \left( M - C(t) \right),
+\]
+where cumulative sales are updated iteratively.
+
+\subsection{Logistic Growth Model}
+The Logistic Growth Model class computes sales directly from the logistic function. Parameter estimation uses numerical optimization to minimize the negative log-likelihood.
+
+\section{Results}
+The models were tested using simulated data:
+\begin{itemize}
+    \item \textbf{Simulation 1}: Data generated from the Bass Model, with parameters \(p = 0.03\), \(q = 0.4\), and \(M = 5000\).
+    \item \textbf{Simulation 2}: Data generated from the Logistic Growth Model, with parameters \(r = 0.3\), \(t_{\text{inf}} = 6\), and \(M = 5000\).
+\end{itemize}
+Both models were fitted to each dataset, and fit metrics (RMSE, MAE) were computed.
+
+\section{Conclusion}
+The Bass and Logistic Growth models provide complementary approaches to sales diffusion modeling:
+\begin{itemize}
+    \item The Bass Model explicitly accounts for innovation and imitation effects.
+    \item The Logistic Growth Model is simpler and assumes intrinsic growth dynamics.
+\end{itemize}
+Future work may include integrating covariates or exploring hybrid models.
+
+\end{document}
